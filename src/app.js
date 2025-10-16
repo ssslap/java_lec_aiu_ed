@@ -95,6 +95,8 @@ function applyLanguage(lang){
   translateDOM();
   // ensure content refreshed
   renderContent(currentLecture);
+  // update CTA button text
+  updateCtaButton();
   console.debug('Language applied:', currentLang, 'keys present:', !!(i18n && i18n[currentLang]));
 }
 
@@ -109,39 +111,95 @@ function buildLecturesArray(){
 function buildSidebar(filter = ''){
   const list = $('#lecturesList');
   list.innerHTML = '';
-  const items = lectures.filter(l => {
-    const title = (i18n[currentLang] && i18n[currentLang][`lecture_${l.id}_title`]) || (i18n['ru'] && i18n['ru'][`lecture_${l.id}_title`]) || `Лекция ${l.id}`;
-    return title.toLowerCase().includes(filter.toLowerCase());
-  });
-  items.forEach(l => {
-    const li = document.createElement('li');
-    li.className = 'lecture-item pulse';
-    li.dataset.idx = l.id;
-    li.setAttribute('role', 'button');
-    li.setAttribute('tabindex', '0');
 
-    const idxEl = document.createElement('div');
-    idxEl.className = 'lecture-index';
-    idxEl.textContent = l.id;
+  const modules = [
+    { name: 'fundamentals', title: 'Основы', titleKk: 'Негіздері', lectures: [1,2,3] },
+    { name: 'oop', title: 'ООП', titleKk: 'ООП', lectures: [4,5,6,7] },
+    { name: 'advanced', title: 'Продвинутые темы', titleKk: 'Кеңейтілген тақырыптар', lectures: [8,9,10,11] },
+    { name: 'practice', title: 'Практика', titleKk: 'Тәжірибе', lectures: [12,13,14,15] }
+  ];
 
-    const titleEl = document.createElement('div');
-    titleEl.className = 'lecture-title';
-    titleEl.dataset.i18n = `lecture_${l.id}_title`;
-
-    li.appendChild(idxEl);
-    li.appendChild(titleEl);
-
-    // Click/select handler
-    li.addEventListener('click', ()=>selectLecture(l.id));
-    // Keyboard activation (Enter / Space)
-    li.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectLecture(l.id); }
+  modules.forEach(module => {
+    // Filter lectures based on search
+    const moduleLectures = module.lectures.filter(id => {
+      const title = (i18n[currentLang] && i18n[currentLang][`lecture_${id}_title`]) || (i18n['ru'] && i18n['ru'][`lecture_${id}_title`]) || `Лекция ${id}`;
+      return title.toLowerCase().includes(filter.toLowerCase());
     });
 
-    list.appendChild(li);
+    if(moduleLectures.length === 0) return; // Skip empty modules
+
+    // Module header
+    const moduleHeader = document.createElement('div');
+    moduleHeader.className = 'module-header';
+    moduleHeader.textContent = currentLang === 'kk' ? module.titleKk : module.title;
+    moduleHeader.addEventListener('click', () => {
+      const lectures = moduleHeader.nextElementSibling;
+      if (lectures) {
+        const isExpanded = lectures.style.display !== 'none';
+        if (window.gsap) {
+          if (isExpanded) {
+            gsap.to(lectures, { maxHeight: 0, opacity: 0, duration: 0.3, ease: 'power2.inOut', onComplete: () => lectures.style.display = 'none' });
+          } else {
+            lectures.style.display = 'block';
+            gsap.fromTo(lectures, { maxHeight: 0, opacity: 0 }, { maxHeight: 500, opacity: 1, duration: 0.3, ease: 'power2.inOut' });
+          }
+        } else {
+          lectures.style.display = isExpanded ? 'none' : 'block';
+        }
+        moduleHeader.classList.toggle('collapsed', !isExpanded);
+      }
+    });
+    list.appendChild(moduleHeader);
+
+    // Module container for lectures
+    const moduleContainer = document.createElement('div');
+    moduleContainer.className = 'module-container';
+    list.appendChild(moduleContainer);
+
+    // Module lectures
+    moduleLectures.forEach(l => {
+      const li = document.createElement('li');
+      li.className = 'lecture-item pulse';
+      li.dataset.idx = l;
+      li.setAttribute('role', 'button');
+      li.setAttribute('tabindex', '0');
+
+      // Add module class
+      li.classList.add(`module-${module.name}`);
+
+      // Icon based on module
+      let icon = '📚';
+      if (module.name === 'fundamentals') icon = '📚';
+      else if (module.name === 'oop') icon = '💻';
+      else if (module.name === 'advanced') icon = '🎯';
+      else if (module.name === 'practice') icon = '🚀';
+
+      const iconEl = document.createElement('div');
+      iconEl.className = 'lecture-icon';
+      iconEl.textContent = icon;
+
+      const idxEl = document.createElement('div');
+      idxEl.className = 'lecture-index';
+      idxEl.textContent = l;
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'lecture-title';
+      titleEl.dataset.i18n = `lecture_${l}_title`;
+
+      li.appendChild(iconEl);
+      li.appendChild(idxEl);
+      li.appendChild(titleEl);
+
+      // Click/select handler
+      li.addEventListener('click', ()=>selectLecture(l));
+      // Keyboard activation (Enter / Space)
+      li.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectLecture(l); }
+      });
+
+      moduleContainer.appendChild(li);
+    });
   });
-  updateResults(items.length);
-  highlightActive();
 }
 
 // grid view removed: site works in single list/content view
@@ -446,7 +504,55 @@ function setupSearch(){
   si.addEventListener('input', onInput, { passive: true });
 }
 
-function setupViewToggle(){ /* view toggle removed */ }
+function updateCtaButton(){
+  const btn = el('#startCourseBtn');
+  if(btn){
+    btn.textContent = currentLang === 'kk' ? (i18n[currentLang] && i18n[currentLang]['cta_start_course_kk']) || 'Курсты бастау' : (i18n['ru'] && i18n['ru']['cta_start_course']) || 'Начать курс';
+  }
+}
+
+function setupCtaButton(){
+  const btn = el('#startCourseBtn');
+  if(btn){
+    btn.addEventListener('click', (e)=>{
+      // Create ripple effect
+      createRippleEffect(e, btn);
+      // Scale animation
+      if(window.gsap){
+        gsap.timeline()
+          .to(btn, {scale: 0.95, duration: 0.1, ease: 'power1.out'})
+          .to(btn, {scale: 1.05, duration: 0.15, ease: 'power1.out'})
+          .to(btn, {scale: 1, duration: 0.1, ease: 'power2.out'});
+      }
+      // Start from lecture 1
+      setTimeout(() => {
+        selectLecture(1);
+        // Scroll to content area
+        const content = el('.content');
+        if(content) content.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    });
+  }
+}
+
+function createRippleEffect(event, element) {
+  const rect = element.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = event.clientX - rect.left - size / 2;
+  const y = event.clientY - rect.top - size / 2;
+
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-effect';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+
+  element.appendChild(ripple);
+
+  setTimeout(() => {
+    ripple.remove();
+  }, 600);
+}
 
 function applyTheme(theme){
   // remove existing theme classes from documentElement
@@ -578,6 +684,7 @@ async function start(){
   // ensure sidebar exists after language applied
   buildSidebar();
   setupSearch();
+  setupCtaButton();
   setupThemeButtons();
   translateDOM();
   applyTheme(currentTheme);
