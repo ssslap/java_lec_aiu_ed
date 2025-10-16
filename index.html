@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0f1115">
+  <base href="./">
+    <title>Введение в программирование на Java — Лекции</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles.css">
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <!-- Inline translations to support file:// opening (no local server) -->
+    <script>
+      window.__I18N = {
+        "ru": {
+          "theme_phosphor": "Фосфор",
+          "theme_aqua": "Aqua",
+          "theme_warm": "Тёплая",
+          "hero_title": "Программирование на JAVA",
+          "hero_subtitle": "Курс лекций для начинающих",
+          "search_placeholder": "Поиск лекций...",
+          "view_list": "Список",
+          "view_grid": "Сетка",
+          "results": "результатов",
+          "siteTitle": "Введение в программирование на Java",
+          "subtitle": "Курс: 15 лекций",
+          "footer": "Создано для университета • Современный UI & анимации",
+          "outline": "План",
+          "lecture_duration": "Длительность: 90 мин",
+          "lecture_1_title": "Лекция 1: Введение в Java-технологии",
+          "lecture_1_intro": "Обзор языка, платформы Java (JVM, JRE, JDK) и сред разработки.",
+          "lecture_2_title": "Лекция 2: Введение в язык программирования Java",
+          "lecture_2_intro": "Структура приложения, пакеты, примитивные типы, переменные и объекты.",
+          "lecture_3_title": "Лекция 3: Операции и операторы Java",
+          "lecture_3_intro": "Арифметические, логические операции, условные операторы и циклы.",
+          "lecture_4_title": "Лекция 4: Стандартные типы Java",
+          "lecture_4_intro": "Работа с массивами, строками (String, StringBuilder) и классами-оболочками.",
+          "lecture_5_title": "Лекция 5: Разработка классов",
+          "lecture_5_intro": "Основы ООП: объявление классов, поля, методы, конструкторы, this, static.",
+          "lecture_6_title": "Лекция 6: Наследование и полиморфизм",
+          "lecture_6_intro": "Ключевые концепции ООП: extends, super, переопределение методов.",
+          "lecture_7_title": "Лекция 7: Абстрактные классы и интерфейсы",
+          "lecture_7_intro": "Создание контрактов поведения и базовых классов для иерархий.",
+          "lecture_8_title": "Лекция 8: Классы Object и Class",
+          "lecture_8_intro": "Корень иерархии классов, методы equals, hashCode, toString и основы рефлексии.",
+          "lecture_9_title": "Лекция 9: Обработка ошибок",
+          "lecture_9_intro": "Исключения (Exceptions), иерархия, try-catch-finally, создание своих исключений.",
+          "lecture_10_title": "Лекция 10: Потоки данных в Java (Ввод/Вывод)",
+          "lecture_10_intro": "Байтовые и символьные потоки, работа с файлами через I/O и NIO.",
+          "lecture_11_title": "Лекция 11: Дополнительные возможности ООП",
+          "lecture_11_intro": "Перечисления (enums), шаблоны (generics) и вложенные классы.",
+          "lecture_12_title": "Лекция 12: Коллекции (Collections Framework)",
+          "lecture_12_intro": "Обзор List, Set, Map. Работа с ArrayList, HashSet, HashMap.",
+          "lecture_13_title": "Лекция 13: Сериализация объектов",
+          "lecture_13_intro": "Сохранение состояния объектов в байты и их восстановление.",
+          "lecture_14_title": "Лекция 14: Работа с файловой системой",
+          "lecture_14_intro": "Управление файлами и каталогами с помощью File API и NIO.2.",
+          "lecture_15_title": "Лекция 15: Шаблоны проектирования",
+          "lecture_15_intro": "Введение в паттерны. Примеры: Singleton, Factory Method."
+        },
+        "kk": {
+          "hero_title": "JAVA бағдарламалау",
+          "hero_subtitle": "Бастаушыларға арналған дәрістер курсы",
+          "search_placeholder": "Дәрістерді іздеу...",
+          "view_list": "Тізім",
+          "view_grid": "Тор",
+          "results": "нәтиже",
+          "siteTitle": "Java бағдарламалауына кіріспе",
+          "subtitle": "Курс: 15 дәріс",
+          "footer": "Университет үшін жасалған • Заманауи UI & анимациялар",
+          "outline": "Жоспар",
+          "lecture_duration": "Ұзақтығы: 90 мин",
+          "lecture_1_title": "Дәріс 1: Java технологияларына кіріспе",
+          "lecture_1_intro": "Тілге, Java платформасына (JVM, JRE, JDK) және әзірлеу орталарына шолу.",
+          "lecture_2_title": "Дәріс 2: Java бағдарламалау тіліне кіріспе",
+          "lecture_2_intro": "Қосымша құрылымы, пакеттер, примитивті типтер, айнымалылар және объектілер.",
+          "lecture_3_title": "Дәріс 3: Java операциялары және операторлары",
+          "lecture_3_intro": "Арифметикалық, логикалық операциялар, шартты операторлар және циклдер.",
+          "lecture_4_title": "Дәріс 4: Java стандартты типтері",
+          "lecture_4_intro": "Массивтермен, жолдармен (String, StringBuilder) және қабық-сыныптармен жұмыс.",
+          "lecture_5_title": "Дәріс 5: Сыныптарды әзірлеу",
+          "lecture_5_intro": "ООП негіздері: сыныптарды жариялау, өрістер, әдістер, конструкторлар, this, static.",
+          "lecture_6_title": "Дәріс 6: Мұрагерлік және полиморфизм",
+          "lecture_6_intro": "ООП негізгі тұжырымдамалары: extends, super, әдістерді қайта анықтау.",
+          "lecture_7_title": "Дәріс 7: Абстрактілі сыныптар және интерфейстер",
+          "lecture_7_intro": "Мінез-құлық келісімшарттарын және иерархиялар үшін негізгі сыныптарды құру.",
+          "lecture_8_title": "Дәріс 8: Object және Class сыныптары",
+          "lecture_8_intro": "Сыныптар иерархиясының түбірі, equals, hashCode, toString әдістері және рефлексия негіздері.",
+          "lecture_9_title": "Дәріс 9: Қателерді өңдеу",
+          "lecture_9_intro": "Ерекше жағдайлар (Exceptions), иерархия, try-catch-finally, өз ерекшеліктеріңді құру.",
+          "lecture_10_title": "Дәріс 10: Java-дағы деректер ағындары (Енгізу/Шығару)",
+          "lecture_10_intro": "Байттық және символдық ағындар, I/O және NIO арқылы файлдармен жұмыс.",
+          "lecture_11_title": "Дәріс 11: ООП қосымша мүмкіндіктері",
+          "lecture_11_intro": "Санамалар (enums), үлгілер (generics) және ішкі сыныптар.",
+          "lecture_12_title": "Дәріс 12: Коллекциялар (Collections Framework)",
+          "lecture_12_intro": "List, Set, Map-қа шолу. ArrayList, HashSet, HashMap-пен жұмыс.",
+          "lecture_13_title": "Дәріс 13: Объектілерді сериализациялау",
+          "lecture_13_intro": "Объектілердің күйін байттарға сақтау және оларды қалпына келтіру.",
+          "lecture_14_title": "Дәріс 14: Файлдық жүйемен жұмыс",
+          "lecture_14_intro": "File API және NIO.2 көмегімен файлдар мен каталогтарды басқару.",
+          "lecture_15_title": "Дәріс 15: Жобалау үлгілері",
+          "lecture_15_intro": "Паттерндерге кіріспе. Мысалдар: Singleton, Factory Method."
+          }
+      };
+    </script>
+    <script src="src/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app">
+      <div class="decor-blob" aria-hidden="true"></div>
+      <header class="header">
+        <div class="brand">
+          <h1 data-i18n="siteTitle">Введение в программирование на Java</h1>
+          <p class="subtitle" data-i18n="subtitle">Курс: 15 лекций</p>
+        </div>
+        <div class="controls">
+          <div class="lang-switch">
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+            <button type="button" class="lang-btn active" data-lang="kk">KZ</button>
+          </div>
+          <div class="theme-switch">
+            <button type="button" class="theme-btn active" data-theme="phosphor" data-i18n="theme_phosphor">Фосфор</button>
+            <button type="button" class="theme-btn" data-theme="aqua" data-i18n="theme_aqua">Aqua</button>
+            <button type="button" class="theme-btn" data-theme="warm" data-i18n="theme_warm">Тёплая</button>
+          </div>
+          <div class="theme-indicator" aria-hidden="true">
+            <span class="theme-icon">●</span>
+            <span class="theme-label" data-i18n="theme_phosphor">Фосфор</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <h2 data-i18n="hero_title">Вместе изучим Java — от основ до практики</h2>
+          </div>
+          <div class="hero-cta">
+            <input id="searchInput" class="search" type="search" data-i18n-placeholder="search_placeholder" aria-label="search">
+          </div>
+        </div>
+      </section>
+
+  <main class="main">
+        <aside class="sidebar" id="sidebar">
+          <nav>
+            <ul id="lecturesList">
+              <!-- Lecture tabs generated by JS -->
+            </ul>
+          </nav>
+        </aside>
+
+        <section class="content">
+          <div class="toolbar">
+            <div class="results" id="resultsInfo"></div>
+          </div>
+          <div class="content-inner" id="contentInner">
+            <!-- Lecture content injected here -->
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer"></footer>
+    </div>
+  </body>
+</html>
