@@ -168,15 +168,20 @@ function buildSidebar(filter = ''){
       li.classList.add(`module-${module.name}`);
 
       // Icon based on module
-      let icon = '📚';
-      if (module.name === 'fundamentals') icon = '📚';
-      else if (module.name === 'oop') icon = '💻';
-      else if (module.name === 'advanced') icon = '🎯';
-      else if (module.name === 'practice') icon = '🚀';
+      let iconHTML = '<svg class="module-icon" viewBox="0 0 24 24" width="20" height="20"><path class="icon-path" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      if (module.name === 'fundamentals') {
+        iconHTML = '<svg class="module-icon" viewBox="0 0 24 24" width="20" height="20"><path class="icon-path" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else if (module.name === 'oop') {
+        iconHTML = '<svg class="module-icon" viewBox="0 0 24 24" width="20" height="20"><path class="icon-path" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else if (module.name === 'advanced') {
+        iconHTML = '<svg class="module-icon" viewBox="0 0 24 24" width="20" height="20"><path class="icon-path" d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else if (module.name === 'practice') {
+        iconHTML = '<svg class="module-icon" viewBox="0 0 24 24" width="20" height="20"><path class="icon-path" d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
 
       const iconEl = document.createElement('div');
       iconEl.className = 'lecture-icon';
-      iconEl.textContent = icon;
+      iconEl.innerHTML = iconHTML;
 
       const idxEl = document.createElement('div');
       idxEl.className = 'lecture-index';
@@ -404,17 +409,23 @@ function animateInitialUI(){
   try{
     // hero text and controls
     gsap.from('.hero-text h2', {y: 18, opacity: 0, duration: 0.7, ease: 'power3.out'});
-    gsap.from('.hero-text p', {y: 12, opacity: 0, duration: 0.7, delay: 0.06, ease: 'power3.out'});
+    // Note: .hero-text p doesn't exist in HTML, removed
     gsap.from('.hero-cta', {y: 8, opacity: 0, duration: 0.7, delay: 0.12, ease: 'power3.out'});
 
-    // sidebar items stagger
-    gsap.from('#lecturesList .lecture-item', {x: -10, opacity: 0, duration: 0.7, stagger: 0.04, delay: 0.18, ease: 'power2.out'});
+    // sidebar items stagger - check if elements exist
+    const sidebarItems = document.querySelectorAll('#lecturesList .lecture-item');
+    if(sidebarItems.length > 0) {
+      gsap.from('#lecturesList .lecture-item', {x: -10, opacity: 0, duration: 0.7, stagger: 0.04, delay: 0.18, ease: 'power2.out'});
+    }
 
-    // content area
-    gsap.from('.content .lecture-card, .content .lecture-header', {y: 6, opacity: 0, duration: 0.6, delay: 0.24, ease: 'power2.out'});
+    // Note: Content animations are handled in renderContent() when content loads
+    // Removed: gsap.from('.content .lecture-card, .content .lecture-header', ...)
 
-    // subtle blob float
-    gsap.to('.decor-blob', {x: -24, y: -12, duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut'});
+    // subtle blob float - check if element exists
+    const blob = document.querySelector('.decor-blob');
+    if(blob) {
+      gsap.to('.decor-blob', {x: -24, y: -12, duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut'});
+    }
   }catch(e){ console.warn('gsap animation failed', e); }
 }
 
@@ -568,6 +579,41 @@ function applyTheme(theme){
   });
   localStorage.setItem('theme', theme);
 
+  // Add smooth transition
+  document.documentElement.style.setProperty('--transition-speed', '0.5s');
+  
+  if (window.gsap) {
+    // Animate theme change
+    gsap.to(document.documentElement, {
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        // Update CSS variables with interpolation
+      }
+    });
+  }
+  
+  // Add temporary overlay for smooth transition
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: var(--bg-main);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.3s;
+  `;
+  document.body.appendChild(overlay);
+  
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '0.7';
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 300);
+    }, 150);
+  });
+
   // update theme indicator (label + icon color)
   const indicator = document.querySelector('.theme-indicator');
   if(indicator){
@@ -674,6 +720,23 @@ document.addEventListener('click', (e)=>{
 
 // setView removed; site uses single list/content layout
 
+function animateCounter(element) {
+  const target = parseInt(element.dataset.target);
+  const duration = 2000;
+  const step = target / (duration / 16);
+  let current = 0;
+  
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      element.textContent = target;
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.floor(current);
+    }
+  }, 16);
+}
+
 async function start(){
   await loadI18n();
   await loadLecturesContent();
@@ -693,6 +756,35 @@ async function start(){
   animateInitialUI();
   // pointer parallax effects
   setupPointerParallax();
+  // animate stats counters
+  document.querySelectorAll('.stat-number').forEach(animateCounter);
+  // setup cursor follow effects
+  document.querySelectorAll('.lecture-item').forEach(item => {
+    item.addEventListener('mousemove', (e) => {
+      const rect = item.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      item.style.setProperty('--mouse-x', `${x}px`);
+      item.style.setProperty('--mouse-y', `${y}px`);
+      
+      const before = item.querySelector('::before');
+      if (before) {
+        before.style.left = `${x}px`;
+        before.style.top = `${y}px`;
+      }
+    });
+    
+    item.addEventListener('mouseenter', () => {
+      const before = item.querySelector('::before');
+      if (before) before.style.opacity = '0.1';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+      const before = item.querySelector('::before');
+      if (before) before.style.opacity = '0';
+    });
+  });
   // add hover subtle effects for cards when GSAP present
   if(window.gsap){
     document.body.addEventListener('mouseover', (e)=>{
@@ -706,4 +798,45 @@ async function start(){
   }
 }
 
+// Animate counter function
+function animateCounter(element) {
+  const target = parseInt(element.dataset.target);
+  const duration = 2000;
+  const step = target / (duration / 16);
+  let current = 0;
+  
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      element.textContent = target;
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.floor(current);
+    }
+  }, 16);
+}
+
 document.addEventListener('DOMContentLoaded', start);
+
+// Call animate counters when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.stat-number').forEach(animateCounter);
+  
+  // Add mouse tracking for lecture items
+  document.querySelectorAll('.lecture-item').forEach(item => {
+    item.addEventListener('mousemove', (e) => {
+      const rect = item.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      item.style.setProperty('--mouse-x', `${x}px`);
+      item.style.setProperty('--mouse-y', `${y}px`);
+      
+      const before = item.querySelector('::before');
+      if (before) {
+        before.style.left = `${x}px`;
+        before.style.top = `${y}px`;
+      }
+    });
+  });
+});
