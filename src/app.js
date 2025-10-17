@@ -744,6 +744,9 @@ function setupHamburgerMenu(){
   if(!backdrop){
     backdrop = document.createElement('div');
     backdrop.className = 'sidebar-backdrop';
+    // ensure backdrop sits below sidebar by default; numeric values chosen to be safely lower
+    backdrop.style.zIndex = '1000';
+    backdrop.style.pointerEvents = 'none';
     document.body.appendChild(backdrop);
   }
 
@@ -753,14 +756,18 @@ function setupHamburgerMenu(){
     hamburger.setAttribute('aria-expanded', 'true');
     sidebar.setAttribute('aria-hidden', 'false');
 
-    // animate sidebar and backdrop using GSAP if available
+  // ensure inline z-index/pointer-events so backdrop doesn't intercept clicks over sidebar
+  try{ sidebar.style.zIndex = '2000'; }catch(e){}
+  try{ backdrop.style.zIndex = '1000'; backdrop.style.pointerEvents = 'auto'; }catch(e){}
+
+  // animate sidebar and backdrop using GSAP if available
     if(window.gsap){
       gsap.killTweensOf(sidebar);
       gsap.killTweensOf(backdrop);
       // ensure starting state
       sidebar.style.display = 'block';
       gsap.fromTo(sidebar, {x: '-108%'}, {x: '0%', duration: 0.36, ease: 'power2.out', onStart: ()=> sidebar.classList.add('open')});
-      gsap.to(backdrop, {duration: 0.36, opacity: 1, pointerEvents: 'auto', ease: 'power2.out', onStart: ()=> backdrop.classList.add('visible')});
+      gsap.to(backdrop, {duration: 0.36, opacity: 1, ease: 'power2.out', onStart: ()=> backdrop.classList.add('visible')});
     }else{
       sidebar.classList.add('open');
       backdrop.classList.add('visible');
@@ -783,11 +790,14 @@ function setupHamburgerMenu(){
     hamburger.setAttribute('aria-expanded', 'false');
     sidebar.setAttribute('aria-hidden', 'true');
 
+    // restore pointer-events on backdrop after animation
+    try{ backdrop.style.pointerEvents = 'none'; }catch(e){}
+
     if(window.gsap){
       gsap.killTweensOf(sidebar);
       gsap.killTweensOf(backdrop);
       gsap.to(sidebar, {x: '-108%', duration: 0.32, ease: 'power2.in', onComplete: ()=> sidebar.classList.remove('open')});
-      gsap.to(backdrop, {duration: 0.32, opacity: 0, pointerEvents: 'none', ease: 'power2.in', onComplete: ()=> backdrop.classList.remove('visible')});
+      gsap.to(backdrop, {duration: 0.32, opacity: 0, ease: 'power2.in', onComplete: ()=> backdrop.classList.remove('visible')});
     }else{
       sidebar.classList.remove('open');
       backdrop.classList.remove('visible');
