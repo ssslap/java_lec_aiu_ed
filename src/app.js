@@ -768,7 +768,8 @@ function setupHamburgerMenu(){
       sidebar.style.display = 'block';
       gsap.fromTo(sidebar, {x: '-108%'}, {x: '0%', duration: 0.36, ease: 'power2.out', onStart: ()=> sidebar.classList.add('open')});
       gsap.to(backdrop, {duration: 0.36, opacity: 1, ease: 'power2.out', onStart: ()=> backdrop.classList.add('visible')});
-    }else{
+    } else {
+      sidebar.style.display = 'block';
       sidebar.classList.add('open');
       backdrop.classList.add('visible');
     }

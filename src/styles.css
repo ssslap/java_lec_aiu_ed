@@ -415,11 +415,11 @@ li { margin-bottom: 0.45em; }
     max-width: 420px;
     background: var(--bg-sidebar);
     transform: translateX(-108%);
-    transition: transform 320ms ease-in-out;
     z-index: 1100;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     overflow: auto;
     padding: 1rem;
+    display: none;
   }
 
   .sidebar.open { transform: translateX(0); }
