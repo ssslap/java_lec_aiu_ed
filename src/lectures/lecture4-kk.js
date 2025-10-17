@@ -66,7 +66,7 @@ String result = builder.toString(); // String-ке түрлендіру</code></
       </div>
       <div class="output">
           <p><strong>Нәтиже:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

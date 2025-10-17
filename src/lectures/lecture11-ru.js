@@ -90,7 +90,7 @@ public class SortExample {
       </div>
       <div class="output">
           <p><strong>Результат:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

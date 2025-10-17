@@ -72,7 +72,7 @@ public class DeliveryContext {
       </div>
       <div class="output">
           <p><strong>Жеткізу журналы:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

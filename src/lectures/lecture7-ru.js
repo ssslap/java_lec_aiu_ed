@@ -89,7 +89,7 @@ public class VideoPlayer implements Playable {
       </div>
       <div class="output">
           <p><strong>Статус плеера:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

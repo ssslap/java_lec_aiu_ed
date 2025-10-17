@@ -63,7 +63,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader("file.txt"))) {
       </div>
       <div class="output">
           <p><strong>Консольге шығару симуляциясы:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

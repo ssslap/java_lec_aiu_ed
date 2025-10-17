@@ -51,7 +51,7 @@ public class NioCopy {
       </div>
       <div class="output">
           <p><strong>Лог симуляции:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

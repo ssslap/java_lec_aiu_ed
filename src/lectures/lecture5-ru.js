@@ -92,7 +92,7 @@ public class Car {
       </div>
       <div class="output">
           <p><strong>Состояние счета:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

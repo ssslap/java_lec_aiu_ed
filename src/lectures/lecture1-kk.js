@@ -45,18 +45,10 @@
           <pre><code>> javac HelloWorld.java
 > java HelloWorld</code></pre>
           <p><strong>Нәтиже:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Hello, Java world!!!</pre>
       </div>
   </div>
-  <script>
-    (function() {
-      const btn = document.currentScript.closest('.code-example').querySelector('.run-java-sim-kk');
-      const output = btn.nextElementSibling.querySelector('.result-output-kk');
-      btn.addEventListener('click', () => {
-        output.textContent = 'Hello, Java world!!!';
-      });
-    })();
-  </script>
+  
 
   <h3>Тілдің негізгі элементтері</h3>
   <p>Қысқаша шолу: примитивті типтер (<code>int</code>, <code>double</code>, <code>boolean</code>, т.б.), сілтеме типтері (объектілер, массивтер), басқару конструкциялары және ООП негіздері.</p>

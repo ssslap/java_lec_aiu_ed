@@ -69,19 +69,11 @@ final int MAX_LIVES = 3; // Тұрақты
       <button class="run-java-sim-kk">Орындау</button>
       <div class="output">
           <p><strong>Нәтиже:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">int 100 double болды 100.0
+double 9.78 int болды 9</pre>
       </div>
   </div>
-  <script>
-    (function() {
-      const btn = document.currentScript.closest('.code-example').querySelector('.run-java-sim-kk');
-      const output = btn.nextElementSibling.querySelector('.result-output-kk');
-      btn.addEventListener('click', () => {
-        output.textContent = 'int 100 double болды 100.0\\n' +
-                             'double 9.78 int болды 9';
-      });
-    })();
-  </script>
+  
 
   <h3>Объектілер және сілтемелер</h3>
   <p>Примитивтерден айырмашылығы, объектілік типтердің айнымалылары объектінің өзін емес, <strong>сілтемені</strong> — жадтағы объектінің мекенжайын сақтайды. Бір объектілік айнымалыны екіншісіне меншіктегенде, сіз объектінің өзін емес, тек сілтемені көшіресіз.</p>

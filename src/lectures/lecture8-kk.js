@@ -33,38 +33,17 @@
 
   <h3>Интерактивті мысал: <code>equals</code> және <code>hashCode</code> дұрыс іске асыру</h3>
   <p><code>Point</code> сыныбын қарастырайық. Екі <code>Point</code> объектісі олардың <code>x</code> және <code>y</code> координаттары сәйкес келсе, тең деп саналуы керек. Бұл қалай іске асырылатынын көріңіз.</p>
-  <div class="code-example">
-      <pre><code class="lang-java">public class Point {
-    private int x, y;
-
+      <div class="output">
+          <p><strong>Нәтиже:</strong></p>
+          <pre class="result-output-kk">p1.equals(p2): true // Объектілер мазмұны бойынша тең
     public Point(int x, int y) { this.x = x; this.y = y; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+      </div>
         if (o == null || getClass() != o.getClass()) return false;
-        Point point = (Point) o;
-        return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-        // Өрістер негізінде хэш-кодты қарапайым есептеу
-        return 31 * x + y; 
-    }
-}</code></pre>
-      <div class="interactive-controls">
-        <button class="run-java-sim-kk">Салыстыруды орындау</button>
-      </div>
-      <div class="output">
-          <p><strong>Нәтиже:</strong></p>
-          <pre class="result-output-kk"></pre>
-      </div>
-  </div>
-  <script>
-    (function() {
-      const container = document.currentScript.closest('.code-example');
-      const btn = container.querySelector('.run-java-sim-kk');
+  
       const output = container.querySelector('.result-output-kk');
       
       btn.addEventListener('click', () => {

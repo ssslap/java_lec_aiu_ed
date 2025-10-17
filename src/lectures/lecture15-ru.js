@@ -72,7 +72,7 @@ public class DeliveryContext {
       </div>
       <div class="output">
           <p><strong>Лог доставки:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

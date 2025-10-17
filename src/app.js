@@ -283,6 +283,8 @@ async function renderContent(idx){
   if(html){
     content.innerHTML = html;
     setupCodeExecution();
+    // Insert prepared outputs for Java code examples to avoid requiring compilation
+    try{ populatePreparedOutputs(content); }catch(e){}
     if(window.Prism) Prism.highlightAll();
   } else {
     // fallback to i18n keys if detailed content not available
@@ -337,6 +339,13 @@ async function renderContent(idx){
   // ensure texts are translated
   translateDOM();
 
+  // Retry filling outputs and attaching handlers shortly after render to handle timing issues
+  setTimeout(()=>{
+    try{ populatePreparedOutputs(content); }catch(e){}
+    try{ setupCodeExecution(); }catch(e){}
+    if(window.Prism) try{ Prism.highlightAll(); }catch(e){}
+  }, 80);
+
   // Attach handlers for Run buttons inside lecture content
   $all('.run-js').forEach(btn=>{
     btn.addEventListener('click', (ev)=>{
@@ -350,6 +359,46 @@ async function renderContent(idx){
     });
   });
   return Promise.resolve();
+}
+
+// Populate prepared outputs for code examples inside a container element
+function populatePreparedOutputs(container){
+  if(!container) container = document;
+  const examples = Array.from(container.querySelectorAll('.code-example'));
+  examples.forEach(ex => {
+    // if result-output-like or run-output already present and non-empty, skip
+    const existingOut = ex.querySelector('[class^="result-output"], [class*=" result-output"], .run-output, [class*="run-output"]') || ex.querySelector('.run-output');
+    if(existingOut && existingOut.textContent && existingOut.textContent.trim().length>0) return;
+
+    // try to find Java code block
+    const codeEl = ex.querySelector('pre code.lang-java, pre code.language-java, code.lang-java');
+    let resultText = '';
+    if(codeEl){
+      const code = codeEl.textContent || '';
+      // try to extract System.out.println("...") content
+      const m = code.match(/System\.out\.println\s*\(\s*["'`]([^"'`\n]*)["'`]\s*\)/);
+      if(m && m[1]) resultText = m[1];
+    }
+
+    if(!resultText){
+      // fallback: look for any println or print string
+      const any = (codeEl && codeEl.textContent) || '';
+      const m2 = any.match(/println\s*\(\s*["'`]([^"'`\n]*)["'`]\s*\)/);
+      if(m2 && m2[1]) resultText = m2[1];
+    }
+
+    if(!resultText) resultText = '\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442: (примерный вывод)';
+
+    if(existingOut){
+      existingOut.textContent = resultText;
+    } else {
+      const pre = document.createElement('pre');
+      pre.className = 'result-output';
+      pre.textContent = resultText;
+      const outputWrapper = ex.querySelector('.output') || ex;
+      outputWrapper.appendChild(pre);
+    }
+  });
 }
 
 function runSnippet(code){
@@ -690,55 +739,159 @@ function setupHamburgerMenu(){
   const sidebar = $('#sidebar');
   if(!hamburger || !sidebar) return;
 
+  // create backdrop element (reused)
+  let backdrop = document.querySelector('.sidebar-backdrop');
+  if(!backdrop){
+    backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  function openSidebar(){
+    hamburger.classList.add('open');
+    // set ARIA
+    hamburger.setAttribute('aria-expanded', 'true');
+    sidebar.setAttribute('aria-hidden', 'false');
+
+    // animate sidebar and backdrop using GSAP if available
+    if(window.gsap){
+      gsap.killTweensOf(sidebar);
+      gsap.killTweensOf(backdrop);
+      // ensure starting state
+      sidebar.style.display = 'block';
+      gsap.fromTo(sidebar, {x: '-108%'}, {x: '0%', duration: 0.36, ease: 'power2.out', onStart: ()=> sidebar.classList.add('open')});
+      gsap.to(backdrop, {duration: 0.36, opacity: 1, pointerEvents: 'auto', ease: 'power2.out', onStart: ()=> backdrop.classList.add('visible')});
+    }else{
+      sidebar.classList.add('open');
+      backdrop.classList.add('visible');
+    }
+
+    // prevent background scroll
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    // Accessibility: focus trap
+    lastFocusedBeforeSidebar = document.activeElement;
+    const focusable = sidebar.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    focusableElements = Array.from(focusable).filter(el => !el.hasAttribute('disabled'));
+    if(focusableElements.length) focusableElements[0].focus();
+    document.addEventListener('keydown', trapFocus);
+  }
+
+  function closeSidebar(){
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    sidebar.setAttribute('aria-hidden', 'true');
+
+    if(window.gsap){
+      gsap.killTweensOf(sidebar);
+      gsap.killTweensOf(backdrop);
+      gsap.to(sidebar, {x: '-108%', duration: 0.32, ease: 'power2.in', onComplete: ()=> sidebar.classList.remove('open')});
+      gsap.to(backdrop, {duration: 0.32, opacity: 0, pointerEvents: 'none', ease: 'power2.in', onComplete: ()=> backdrop.classList.remove('visible')});
+    }else{
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+    }
+
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+
+    // remove focus trap
+    document.removeEventListener('keydown', trapFocus);
+    try{ if(lastFocusedBeforeSidebar) lastFocusedBeforeSidebar.focus(); }catch(e){}
+  }
+
   hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    sidebar.classList.toggle('open');
+    if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar();
   });
 
-  // Close sidebar when clicking outside on mobile
+  // Close sidebar when clicking backdrop
+  backdrop.addEventListener('click', () => closeSidebar());
+
+  // Close on Escape
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+  });
+
+  // Close sidebar when clicking outside (fallback)
   document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open')) {
-      hamburger.classList.remove('open');
-      sidebar.classList.remove('open');
+    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open') && !e.target.classList.contains('sidebar-backdrop')) {
+      closeSidebar();
     }
   });
+
+  // Focus trap helpers
+  let focusableElements = [];
+  let lastFocusedBeforeSidebar = null;
+  function trapFocus(e){
+    if(e.key !== 'Tab') return;
+    if(!sidebar.classList.contains('open')) return;
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length -1];
+    if(!first) return;
+    if(e.shiftKey){
+      if(document.activeElement === first){
+        e.preventDefault();
+        last.focus();
+      }
+    }else{
+      if(document.activeElement === last){
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
 }
 
 function setupCodeExecution(){
-  const buttons = $all('.run-java-sim');
+  // select any element whose class contains run-java-sim (e.g. run-java-sim, run-java-sim-kk) or run-js
+  const buttons = $all('[class*="run-java-sim"], [class*="run-js"]');
   let currentIndex = 0;
 
   buttons.forEach((btn, index) => {
-    if (index > 0) {
+    // Replace interactive execution with prepared output where available.
+    // Hide/disable run buttons to avoid implying live compilation.
+    try{
+      btn.style.display = 'none';
+      btn.setAttribute('aria-hidden', 'true');
       btn.disabled = true;
-      btn.style.opacity = '0.5';
-    }
-    btn.addEventListener('click', async () => {
-      const output = btn.nextElementSibling.querySelector('.result-output');
-      const loadingIndicator = document.createElement('div');
-      loadingIndicator.textContent = 'Выполнение...';
-      loadingIndicator.style.color = 'var(--accent-color)';
-      output.innerHTML = '';
-      output.appendChild(loadingIndicator);
+    }catch(e){}
+  });
 
-      try {
-        // Simulate execution delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simulate result
-        const result = 'Hello, Java world!!!'; // In real app, this would be actual execution
-        output.textContent = result;
-        
-        // Enable next button
-        if (currentIndex < buttons.length - 1) {
-          currentIndex++;
-          buttons[currentIndex].disabled = false;
-          buttons[currentIndex].style.opacity = '1';
-        }
-      } catch (error) {
-        output.textContent = 'Ошибка выполнения: ' + error.message;
+  // Also handle generic JS-run snippets: if elements with class .js-run exist, show their result inline
+  $all('.js-run').forEach(codeEl => {
+    // If a sibling element with class .run-output/.result-output exists, prefer it
+    const outEl = codeEl.parentElement && (codeEl.parentElement.querySelector('.run-output') || codeEl.parentElement.querySelector('.result-output'));
+    // If lecture content included an explicit output sample (e.g., <pre class="result-output">) leave it as-is;
+    // otherwise attempt to evaluate simple snippets safe-to-run (only expressions) and display result.
+    try{
+      if(outEl && outEl.textContent && outEl.textContent.trim().length>0){
+        // already has prepared output, nothing to do
+        return;
       }
-    });
+      const code = codeEl.textContent || '';
+      // very small safety: only evaluate single-expression lines without global side-effects
+      const safe = /^\s*([\w\s\[\]\{\}\"'.,:=+\-/*%()<>!&|^\\\n\r\t]+)\s*$/m;
+      if(safe.test(code) && code.length < 2000){
+        // evaluate inside Function to avoid accessing page scope variables
+        let res = '';
+        try{
+          // eslint-disable-next-line no-new-func
+          res = new Function('return (' + code + ')')();
+        }catch(e){
+          // if evaluation fails, skip
+          return;
+        }
+        if(outEl){
+          outEl.textContent = String(res === undefined ? '' : res);
+        }else{
+          const out = document.createElement('pre');
+          out.className = 'run-output';
+          out.textContent = String(res === undefined ? '' : res);
+          codeEl.parentElement && codeEl.parentElement.appendChild(out);
+        }
+      }
+    }catch(e){ /* ignore any evaluation errors */ }
   });
 }
 

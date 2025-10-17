@@ -37,3 +37,20 @@ Recommended simple workflow:
 Notes:
 - If you host at a project path (not user site), GitHub Pages will serve the repo under `/repo/` — the site uses relative links by default and should work without changes.
 - Add `CNAME` to the root if you want a custom domain.
+
+## Быстрая проверка изменений (автовывод результатов и мобильное меню)
+
+1) Запустите локальный сервер в каталоге проекта:
+
+```bash
+python3 -m http.server 8000
+```
+
+2) Откройте в браузере http://localhost:8000/index.html
+
+3) Что проверить:
+- Перейдите в любую лекцию — блоки вывода (`pre.result-output`, `pre.result-output-kk`, и т.д.) должны быть заполнены заранее (это подготовленные результаты, не требующие компиляции).
+- На мобильном разрешении нажмите гамбургер — сайдбар должен выезжать, overlay затемнение появляется; нажмите затемнение или ESC чтобы закрыть.
+- Кнопки запуска (`.run-java-sim*`, `.run-js*`) скрыты и не запускают компиляцию.
+
+Если где-то всё ещё пусто — откройте DevTools → Console и пришлите ошибки или скопируйте HTML проблемного `code-example` блока: я поправлю его вручную.

@@ -45,19 +45,11 @@
           <p><strong>Симуляция компиляции и запуска:</strong></p>
           <pre><code>> javac HelloWorld.java
 > java HelloWorld</code></pre>
-          <p><strong>Результат:</strong></p>
-          <pre class="result-output"></pre>
+              <p><strong>Результат:</strong></p>
+              <pre class="result-output">Hello, Java world!!!</pre>
       </div>
   </div>
-  <script>
-    (function() {
-      const btn = document.currentScript.closest('.code-example').querySelector('.run-java-sim');
-      const output = btn.nextElementSibling.querySelector('.result-output');
-      btn.addEventListener('click', () => {
-        output.textContent = 'Hello, Java world!!!';
-      });
-    })();
-  </script>
+  
 
   <h3>Базовые элементы языка</h3>
   <p>Ниже — краткий обзор синтаксиса и основных понятий, с которыми вы столкнётесь в первых главах любого курса по Java.</p>

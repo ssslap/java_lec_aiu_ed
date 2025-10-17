@@ -69,19 +69,11 @@ final int MAX_LIVES = 3; // Константа
       <button class="run-java-sim">Выполнить</button>
       <div class="output">
           <p><strong>Результат:</strong></p>
-          <pre class="result-output"></pre>
+          <pre class="result-output">int 100 стал double 100.0
+double 9.78 стал int 9</pre>
       </div>
   </div>
-  <script>
-    (function() {
-      const btn = document.currentScript.closest('.code-example').querySelector('.run-java-sim');
-      const output = btn.nextElementSibling.querySelector('.result-output');
-      btn.addEventListener('click', () => {
-        output.textContent = 'int 100 стал double 100.0\\n' +
-                             'double 9.78 стал int 9';
-      });
-    })();
-  </script>
+  
 
   <h3>Объекты и Ссылки</h3>
   <p>В отличие от примитивов, переменные объектных типов хранят не сам объект, а <strong>ссылку</strong> — адрес объекта в памяти. Когда вы присваиваете одну объектную переменную другой, вы копируете только ссылку, а не сам объект.</p>

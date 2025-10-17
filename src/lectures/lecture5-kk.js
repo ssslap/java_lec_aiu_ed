@@ -92,7 +92,7 @@ public class Car {
       </div>
       <div class="output">
           <p><strong>Шот күйі:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

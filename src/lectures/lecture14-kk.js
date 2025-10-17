@@ -51,7 +51,7 @@ public class NioCopy {
       </div>
       <div class="output">
           <p><strong>Симуляция журналы:</strong></p>
-          <pre class="result-output-kk"></pre>
+          <pre class="result-output-kk">Результат: (примерный вывод)</pre>
       </div>
   </div>
   <script>

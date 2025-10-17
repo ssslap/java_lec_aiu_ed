@@ -33,38 +33,17 @@
 
   <h3>Интерактивный пример: Правильная реализация <code>equals</code> и <code>hashCode</code></h3>
   <p>Рассмотрим класс <code>Point</code>. Два объекта <code>Point</code> должны считаться равными, если их координаты <code>x</code> и <code>y</code> совпадают. Посмотрите, как это реализуется.</p>
-  <div class="code-example">
-      <pre><code class="lang-java">public class Point {
-    private int x, y;
-
+      <div class="output">
+          <p><strong>Результат:</strong></p>
+          <pre class="result-output">p1.equals(p2): true // Объекты равны по содержимому
     public Point(int x, int y) { this.x = x; this.y = y; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+      </div>
         if (o == null || getClass() != o.getClass()) return false;
-        Point point = (Point) o;
-        return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-        // Простое вычисление хэш-кода на основе полей
-        return 31 * x + y; 
-    }
-}</code></pre>
-      <div class="interactive-controls">
-        <button class="run-java-sim">Выполнить сравнение</button>
-      </div>
-      <div class="output">
-          <p><strong>Результат:</strong></p>
-          <pre class="result-output"></pre>
-      </div>
-  </div>
-  <script>
-    (function() {
-      const container = document.currentScript.closest('.code-example');
-      const btn = container.querySelector('.run-java-sim');
+  
       const output = container.querySelector('.result-output');
       
       btn.addEventListener('click', () => {
