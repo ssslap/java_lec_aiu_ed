@@ -282,6 +282,8 @@ async function renderContent(idx){
 
   if(html){
     content.innerHTML = html;
+    setupCodeExecution();
+    if(window.Prism) Prism.highlightAll();
   } else {
     // fallback to i18n keys if detailed content not available
     content.innerHTML = '';
@@ -683,6 +685,63 @@ function setupThemeButtons(){
   });
 }
 
+function setupHamburgerMenu(){
+  const hamburger = $('#hamburgerMenu');
+  const sidebar = $('#sidebar');
+  if(!hamburger || !sidebar) return;
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    sidebar.classList.toggle('open');
+  });
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open')) {
+      hamburger.classList.remove('open');
+      sidebar.classList.remove('open');
+    }
+  });
+}
+
+function setupCodeExecution(){
+  const buttons = $all('.run-java-sim');
+  let currentIndex = 0;
+
+  buttons.forEach((btn, index) => {
+    if (index > 0) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    }
+    btn.addEventListener('click', async () => {
+      const output = btn.nextElementSibling.querySelector('.result-output');
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.textContent = 'Выполнение...';
+      loadingIndicator.style.color = 'var(--accent-color)';
+      output.innerHTML = '';
+      output.appendChild(loadingIndicator);
+
+      try {
+        // Simulate execution delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simulate result
+        const result = 'Hello, Java world!!!'; // In real app, this would be actual execution
+        output.textContent = result;
+        
+        // Enable next button
+        if (currentIndex < buttons.length - 1) {
+          currentIndex++;
+          buttons[currentIndex].disabled = false;
+          buttons[currentIndex].style.opacity = '1';
+        }
+      } catch (error) {
+        output.textContent = 'Ошибка выполнения: ' + error.message;
+      }
+    });
+  });
+}
+
 // Fallback / delegation: ensure theme buttons always react even if direct listeners fail
 function themeActivate(btn){
   if(!btn) return;
@@ -749,6 +808,7 @@ async function start(){
   setupSearch();
   setupCtaButton();
   setupThemeButtons();
+  setupHamburgerMenu();
   translateDOM();
   applyTheme(currentTheme);
   selectLecture(currentLecture);
