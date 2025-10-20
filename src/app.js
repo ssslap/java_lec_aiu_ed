@@ -734,124 +734,15 @@ function setupThemeButtons(){
   });
 }
 
-function setupHamburgerMenu(){
+function setupHamburgerMenu() {
   const hamburger = $('#hamburgerMenu');
   const sidebar = $('#sidebar');
-  if(!hamburger || !sidebar) return;
-
-  // create backdrop element (reused)
-  let backdrop = document.querySelector('.sidebar-backdrop');
-  if(!backdrop){
-    backdrop = document.createElement('div');
-    backdrop.className = 'sidebar-backdrop';
-    // ensure backdrop sits below sidebar by default; numeric values chosen to be safely lower
-    backdrop.style.zIndex = '1000';
-    backdrop.style.pointerEvents = 'none';
-    document.body.appendChild(backdrop);
-  }
-
-  function openSidebar(){
-    hamburger.classList.add('open');
-    // set ARIA
-    hamburger.setAttribute('aria-expanded', 'true');
-    sidebar.setAttribute('aria-hidden', 'false');
-
-  // ensure inline z-index/pointer-events so backdrop doesn't intercept clicks over sidebar
-  try{ sidebar.style.zIndex = '2000'; }catch(e){}
-  try{ backdrop.style.zIndex = '1000'; backdrop.style.pointerEvents = 'auto'; }catch(e){}
-
-  // animate sidebar and backdrop using GSAP if available
-    if(window.gsap){
-      gsap.killTweensOf(sidebar);
-      gsap.killTweensOf(backdrop);
-      // ensure starting state
-      sidebar.style.display = 'block';
-      gsap.fromTo(sidebar, {x: '-108%'}, {x: '0%', duration: 0.36, ease: 'power2.out', onStart: ()=> sidebar.classList.add('open')});
-      gsap.to(backdrop, {duration: 0.36, opacity: 1, ease: 'power2.out', onStart: ()=> backdrop.classList.add('visible')});
-    } else {
-      sidebar.style.display = 'block';
-      sidebar.classList.add('open');
-      backdrop.classList.add('visible');
-    }
-
-    // prevent background scroll
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-
-    // Accessibility: focus trap
-    lastFocusedBeforeSidebar = document.activeElement;
-    const focusable = sidebar.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
-    focusableElements = Array.from(focusable).filter(el => !el.hasAttribute('disabled'));
-    if(focusableElements.length) focusableElements[0].focus();
-    document.addEventListener('keydown', trapFocus);
-  }
-
-  function closeSidebar(){
-    hamburger.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    sidebar.setAttribute('aria-hidden', 'true');
-
-    // restore pointer-events on backdrop after animation
-    try{ backdrop.style.pointerEvents = 'none'; }catch(e){}
-
-    if(window.gsap){
-      gsap.killTweensOf(sidebar);
-      gsap.killTweensOf(backdrop);
-      gsap.to(sidebar, {x: '-108%', duration: 0.32, ease: 'power2.in', onComplete: ()=> sidebar.classList.remove('open')});
-      gsap.to(backdrop, {duration: 0.32, opacity: 0, ease: 'power2.in', onComplete: ()=> backdrop.classList.remove('visible')});
-    }else{
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('visible');
-    }
-
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-
-    // remove focus trap
-    document.removeEventListener('keydown', trapFocus);
-    try{ if(lastFocusedBeforeSidebar) lastFocusedBeforeSidebar.focus(); }catch(e){}
-  }
+  if (!hamburger || !sidebar) return;
 
   hamburger.addEventListener('click', () => {
-    if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar();
+    sidebar.classList.toggle('open');
+    hamburger.classList.toggle('open');
   });
-
-  // Close sidebar when clicking backdrop
-  backdrop.addEventListener('click', () => closeSidebar());
-
-  // Close on Escape
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
-  });
-
-  // Close sidebar when clicking outside (fallback)
-  document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open') && !e.target.classList.contains('sidebar-backdrop')) {
-      closeSidebar();
-    }
-  });
-
-  // Focus trap helpers
-  let focusableElements = [];
-  let lastFocusedBeforeSidebar = null;
-  function trapFocus(e){
-    if(e.key !== 'Tab') return;
-    if(!sidebar.classList.contains('open')) return;
-    const first = focusableElements[0];
-    const last = focusableElements[focusableElements.length -1];
-    if(!first) return;
-    if(e.shiftKey){
-      if(document.activeElement === first){
-        e.preventDefault();
-        last.focus();
-      }
-    }else{
-      if(document.activeElement === last){
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }
 }
 
 function setupCodeExecution(){
@@ -981,6 +872,25 @@ function animateCounter(element) {
   }, 16);
 }
 
+function setupGlobeBackground() {
+  if (window.VANTA) {
+    VANTA.GLOBE({
+      el: "#vanta-globe",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      color: 0x2E86AB,
+      color2: 0x1E5F99,
+      backgroundColor: 0x0f1115,
+      size: 1.2
+    });
+  }
+}
+
 async function start(){
   await loadI18n();
   await loadLecturesContent();
@@ -1005,6 +915,7 @@ async function start(){
   document.querySelectorAll('.stat-number').forEach(animateCounter);
   // setup cursor follow effects
   setupResponsiveControls();
+  setupGlobeBackground();
   document.querySelectorAll('.lecture-item').forEach(item => {
     item.addEventListener('mousemove', (e) => {
       const rect = item.getBoundingClientRect();
