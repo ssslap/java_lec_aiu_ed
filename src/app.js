@@ -938,8 +938,29 @@ document.addEventListener('click', (e)=>{
     themeActivate(btn);
   }
 });
-  // pointermove: mark listener passive where possible to improve scroll performance
-  try{ document.addEventListener('pointermove', ()=>{}, {passive:true}); }catch(e){}
+// pointermove: mark listener passive where possible to improve scroll performance
+try{ document.addEventListener('pointermove', ()=>{}, {passive:true}); }catch(e){}
+
+function setupResponsiveControls() {
+  const headerControls = document.querySelector('.header-controls');
+  const sidebarControls = document.querySelector('.sidebar-controls');
+  const header = document.querySelector('.header');
+
+  function moveControls() {
+    if (window.innerWidth <= 900) {
+      if (headerControls && sidebarControls && !sidebarControls.contains(headerControls)) {
+        sidebarControls.appendChild(headerControls);
+      }
+    } else {
+      if (headerControls && sidebarControls && sidebarControls.contains(headerControls)) {
+        header.appendChild(headerControls);
+      }
+    }
+  }
+
+  moveControls();
+  window.addEventListener('resize', debounce(moveControls, 150));
+}
 
 // setView removed; site uses single list/content layout
 
@@ -983,6 +1004,7 @@ async function start(){
   // animate stats counters
   document.querySelectorAll('.stat-number').forEach(animateCounter);
   // setup cursor follow effects
+  setupResponsiveControls();
   document.querySelectorAll('.lecture-item').forEach(item => {
     item.addEventListener('mousemove', (e) => {
       const rect = item.getBoundingClientRect();
