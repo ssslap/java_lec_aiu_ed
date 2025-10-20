@@ -222,6 +222,13 @@ async function selectLecture(idx){
   const content = $('#contentInner');
   if(!content) return;
 
+  if (window.innerWidth <= 900) {
+    const sidebar = $('#sidebar');
+    const hamburger = $('#hamburgerMenu');
+    sidebar.classList.remove('open');
+    hamburger.classList.remove('open');
+  }
+
   // Measure current geometry (FLIP 'First')
   const oldRect = content.getBoundingClientRect();
 
@@ -321,6 +328,27 @@ async function renderContent(idx){
     content.appendChild(header);
     content.appendChild(body);
   }
+
+  const navContainer = document.createElement('div');
+  navContainer.className = 'lecture-nav';
+
+  if (idx > 1) {
+    const prevButton = document.createElement('button');
+    prevButton.className = 'nav-button prev';
+    prevButton.dataset.i18n = 'prev_lecture';
+    prevButton.onclick = () => selectLecture(idx - 1);
+    navContainer.appendChild(prevButton);
+  }
+
+  if (idx < LECTURES_COUNT) {
+    const nextButton = document.createElement('button');
+    nextButton.className = 'nav-button next';
+    nextButton.dataset.i18n = 'next_lecture';
+    nextButton.onclick = () => selectLecture(idx + 1);
+    navContainer.appendChild(nextButton);
+  }
+
+  content.appendChild(navContainer);
 
   // Animate entrance
   const header = content.querySelector('.lecture-header');

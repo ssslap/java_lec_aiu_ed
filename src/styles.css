@@ -111,6 +111,32 @@ html, body {
   min-height: calc(100vh - 7rem);
 }
 
+.content-inner p {
+  margin-bottom: 1.5rem;
+}
+
+.lecture-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.nav-button {
+  padding: 0.8rem 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-color);
+}
+
 .hero {
   padding: 8rem 2rem 3.5rem;
   text-align: center;
