@@ -384,12 +384,9 @@ pre[class*="language-"] {
 
 @media (max-width: 900px) {
   .copy-code-btn {
-    top: 0.5rem;
+    top: auto;
+    bottom: 0.5rem;
     right: 0.5rem;
-  }
-
-  pre[class*="language-"] {
-    padding-top: 3.5rem !important;
   }
 
   .header {
