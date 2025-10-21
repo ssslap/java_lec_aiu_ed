@@ -86,6 +86,37 @@ html, body {
   border-radius: 14px;
 }
 
+.header-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-grow: 1;
+  margin: 0 2rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  max-width: 200px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  border-radius: 4px;
+  transition: width 0.3s ease-out;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .main {
   display: flex;
   gap: 1.25rem;
@@ -104,6 +135,27 @@ html, body {
   flex: 1;
   padding: 0;
   overflow-y: auto;
+  position: relative;
+}
+
+.sticky-lecture-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 1rem 2rem;
+  background: var(--glass);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 1.2rem;
+  font-weight: 700;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+  display: none;
+}
+
+.sticky-lecture-header.visible {
+  transform: translateY(0);
 }
 
 .content-inner {
@@ -226,6 +278,20 @@ html, body {
   transform: translateX(6px);
 }
 
+.lecture-item.completed .lecture-title {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.lecture-item.completed .lecture-index::after {
+  content: '✔';
+  position: absolute;
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  right: -5px;
+  bottom: -5px;
+}
+
 .lecture-item.active {
   background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
   color: #fff;
@@ -281,6 +347,7 @@ html, body {
 }
 
 pre[class*="language-"] {
+  position: relative;
   background: rgba(0,0,0,0.3) !important;
   color: #f8f8f2 !important;
   border: 1px solid var(--border-color) !important;
@@ -290,6 +357,29 @@ pre[class*="language-"] {
   font-size: 1.06rem !important;
   line-height: 1.65 !important;
   overflow: auto !important;
+}
+
+.copy-code-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.copy-code-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+
+.copy-code-btn svg {
+  display: block;
 }
 
 @media (max-width: 900px) {

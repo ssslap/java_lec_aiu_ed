@@ -11,6 +11,7 @@ let currentView = 'list'; // or 'grid'
 let lectures = [];
 let currentTheme = localStorage.getItem('theme') || 'phosphor';
 let lecturesContent = {};
+let completedLectures = new Set(JSON.parse(localStorage.getItem('completedLectures')) || []);
 
 const $ = sel => document.querySelector(sel);
 const $all = sel => Array.from(document.querySelectorAll(sel));
@@ -164,6 +165,10 @@ function buildSidebar(filter = ''){
       li.setAttribute('role', 'button');
       li.setAttribute('tabindex', '0');
 
+      if (completedLectures.has(l)) {
+        li.classList.add('completed');
+      }
+
       // Add module class
       li.classList.add(`module-${module.name}`);
 
@@ -235,7 +240,10 @@ async function selectLecture(idx){
   // update state early so sidebar highlight is immediate
   currentLecture = idx;
   localStorage.setItem('lastLecture', idx);
+  completedLectures.add(idx);
+  localStorage.setItem('completedLectures', JSON.stringify(Array.from(completedLectures)));
   highlightActive();
+  updateProgress();
 
   // Render new content (FLIP 'Last') — ensure lecture scripts are loaded if present
   await renderContent(idx);
@@ -293,6 +301,7 @@ async function renderContent(idx){
     // Insert prepared outputs for Java code examples to avoid requiring compilation
     try{ populatePreparedOutputs(content); }catch(e){}
     if(window.Prism) Prism.highlightAll();
+    setupCopyCodeButtons(content);
   } else {
     // fallback to i18n keys if detailed content not available
     content.innerHTML = '';
@@ -367,11 +376,14 @@ async function renderContent(idx){
   // ensure texts are translated
   translateDOM();
 
+  updateStickyHeader();
+
   // Retry filling outputs and attaching handlers shortly after render to handle timing issues
   setTimeout(()=>{
     try{ populatePreparedOutputs(content); }catch(e){}
     try{ setupCodeExecution(); }catch(e){}
     if(window.Prism) try{ Prism.highlightAll(); }catch(e){}
+    try{ setupCopyCodeButtons(content); }catch(e){}
   }, 80);
 
   // Attach handlers for Run buttons inside lecture content
@@ -825,6 +837,36 @@ function setupCodeExecution(){
   });
 }
 
+function setupCopyCodeButtons(container) {
+  if (!container) container = document;
+  const codeBlocks = container.querySelectorAll('pre[class*="language-"]');
+  codeBlocks.forEach(block => {
+    if (block.querySelector('.copy-code-btn')) return;
+
+    const button = document.createElement('button');
+    button.className = 'copy-code-btn';
+    button.title = 'Copy code';
+    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+
+    button.addEventListener('click', () => {
+      const code = block.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>';
+        button.title = 'Copied!';
+        setTimeout(() => {
+          button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+          button.title = 'Copy code';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy code: ', err);
+      });
+    });
+
+    block.style.position = 'relative';
+    block.appendChild(button);
+  });
+}
+
 // Fallback / delegation: ensure theme buttons always react even if direct listeners fail
 function themeActivate(btn){
   if(!btn) return;
@@ -944,6 +986,8 @@ async function start(){
   // setup cursor follow effects
   setupResponsiveControls();
   setupGlobeBackground();
+  setupScrollListener();
+  updateProgress();
   document.querySelectorAll('.lecture-item').forEach(item => {
     item.addEventListener('mousemove', (e) => {
       const rect = item.getBoundingClientRect();
@@ -984,6 +1028,54 @@ async function start(){
 }
 
 // Animate counter function
+function updateProgress() {
+  const progressBar = $('#progressBar');
+  const progressText = $('#progressText');
+  const completedCount = completedLectures.size;
+  const totalCount = LECTURES_COUNT;
+  const percentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  if (progressBar) progressBar.style.width = `${percentage}%`;
+  if (progressText) progressText.textContent = `${completedCount} / ${totalCount}`;
+
+  // Update sidebar items
+  $all('.lecture-item').forEach(item => {
+    const idx = parseInt(item.dataset.idx, 10);
+    if (completedLectures.has(idx)) {
+      item.classList.add('completed');
+    } else {
+      item.classList.remove('completed');
+    }
+  });
+}
+
+function setupScrollListener() {
+  const contentEl = $('.content');
+  if (contentEl) {
+    contentEl.addEventListener('scroll', () => {
+      updateStickyHeader();
+    });
+  }
+}
+
+function updateStickyHeader() {
+  const stickyHeader = $('#stickyLectureHeader');
+  const mainHeader = $('.lecture-header');
+  const contentEl = $('.content');
+
+  if (!stickyHeader || !mainHeader || !contentEl) return;
+
+  const mainHeaderRect = mainHeader.getBoundingClientRect();
+  
+  if (mainHeaderRect.top < 0) {
+    stickyHeader.style.display = 'block';
+    stickyHeader.textContent = mainHeader.querySelector('h2').textContent;
+    stickyHeader.classList.add('visible');
+  } else {
+    stickyHeader.classList.remove('visible');
+  }
+}
+
 function animateCounter(element) {
   const target = parseInt(element.dataset.target);
   const duration = 2000;
